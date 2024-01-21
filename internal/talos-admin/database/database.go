@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	v1 "github.com/CRASH-Tech/talos-admin/internal/talos-admin/api/v1"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
+	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/models"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -17,7 +17,7 @@ type DB struct {
 	ctx context.Context
 }
 
-func New(cfg config.СonfigImpl) DB {
+func New(cfg config.Сonfig) DB {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.DB_USER,
 		cfg.DB_PASS,
@@ -36,7 +36,7 @@ func New(cfg config.СonfigImpl) DB {
 }
 
 func (db *DB) Init() error {
-	_, err := db.db.NewCreateTable().Model((*v1.Cluster)(nil)).Exec(db.ctx)
+	_, err := db.db.NewCreateTable().Model((*models.Cluster)(nil)).Exec(db.ctx)
 	if err != nil {
 		return err
 	}

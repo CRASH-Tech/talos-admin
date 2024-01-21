@@ -3,13 +3,13 @@ package server
 import (
 	"net/http"
 
-	v1 "github.com/CRASH-Tech/talos-admin/internal/talos-admin/api/v1"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
+	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/models"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
-func setRouter(cfg config.СonfigImpl) *gin.Engine {
+func setRouter(cfg config.Сonfig) *gin.Engine {
 	router := gin.Default()
 
 	// Enables automatic redirection if the current route can't be matched but a
@@ -37,8 +37,8 @@ func setRouter(cfg config.СonfigImpl) *gin.Engine {
 	{
 		clusters := rV1.Group("/clusters")
 		{
-			clusters.GET(":id", v1.ClusterGet)
-			clusters.GET("", v1.ClusterGetAll)
+			clusters.GET(":id", models.ClusterGet)
+			clusters.GET("", models.ClusterGetAll)
 			// accounts.POST("", c.AddAccount)
 			// accounts.DELETE(":id", c.DeleteAccount)
 			// accounts.PATCH(":id", c.UpdateAccount)

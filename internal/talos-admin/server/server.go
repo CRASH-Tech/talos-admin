@@ -15,7 +15,7 @@ import (
 
 const InternalServerError = "Something went wrong!"
 
-func Start(cfg config.СonfigImpl) {
+func Start(cfg config.Сonfig) {
 	//jwtSetup(cfg)
 
 	//store.SetDBConnection(database.NewDBOptions(cfg))

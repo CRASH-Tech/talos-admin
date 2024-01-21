@@ -2,10 +2,9 @@ package config
 
 import (
 	"github.com/caarlos0/env/v10"
-	log "github.com/sirupsen/logrus"
 )
 
-type СonfigImpl struct {
+type Сonfig struct {
 	LISTEN_ADDR string `env:"LISTEN_ADDR" envDefault:"127.0.0.1:8080"`
 	LOG_LEVEL   string `env:"LOG_LEVEL" envDefault:"info"`
 	LOG_FORMAT  string `env:"LOG_FORMAT" envDefault:"text"`
@@ -23,12 +22,12 @@ type СonfigImpl struct {
 	// StringInts   map[string]int `env:"MAP_STRING_INT"`
 }
 
-func Get() СonfigImpl {
-	cfg := СonfigImpl{}
+func Get() (Сonfig, error) {
+	cfg := Сonfig{}
 
 	if err := env.Parse(&cfg); err != nil {
-		log.Panic(err)
+		return cfg, err
 	}
 
-	return cfg
+	return cfg, nil
 }

@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Init(cfg config.СonfigImpl) {
+func Init(cfg config.Сonfig) {
 	switch cfg.LOG_FORMAT {
 	case "text":
 		log.SetFormatter(&log.TextFormatter{})

@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
-
-	v1 "github.com/CRASH-Tech/talos-admin/internal/talos-admin/api/v1"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/database"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/logger"
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // var (
@@ -14,32 +13,43 @@ import (
 // )
 
 type App struct {
-	cfg config.СonfigImpl
-	db  database.DB
+	cfg    config.Сonfig
+	db     database.DB
+	router *gin.Engine
 	//log log.Logger
 	//router XXX
 }
 
 // func init() {
-// 	// 	cfg = config.Get()
+// 	cfg = config.Get()
 
 // 	// db := database.New(cfg)
 // 	// db.Cluster().
 // }
 
-func (a *App) Init() *App {
-	cfg := config.Get()
-	logger.Init(cfg)
-	a.cfg = cfg
-	a.db = database.New(cfg)
-	a.db.Init()
+func NewApp(cfg config.Сonfig) *App {
+	var app App
 
-	return a
+	logger.Init(cfg)
+	app.cfg = cfg
+	app.db = database.New(cfg)
+	app.db.Init()
+
+	return &app
+}
+
+func (a *App) Start() {
+	log.Info("Start APP")
 }
 
 func main() {
-	app := App{}
-	app.Init()
+	cfg, err := config.Get()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	app := NewApp(cfg)
+	app.Start()
 	//fillDB(app)
 
 	//GET CLUSTERS
@@ -88,10 +98,10 @@ func main() {
 }
 
 func fillDB(a App) {
-	for i := 0; i < 10; i++ {
-		c := v1.Cluster{
-			Name: fmt.Sprintf("k-test-%d", i),
-		}
-		a.db.AddCluster(c)
-	}
+	// for i := 0; i < 10; i++ {
+	// 	c := v1.Cluster{
+	// 		Name: fmt.Sprintf("k-test-%d", i),
+	// 	}
+	// 	a.db.AddCluster(c)
+	// }
 }
