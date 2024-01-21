@@ -1,0 +1,33 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table clusters {
+  id integer [primary key]
+  name varchar
+}
+
+Table nodes {
+  id integer [primary key]
+  cluster_id integer
+  name varchar
+  template_id integer
+  machine_config varchar
+}
+
+Table variables {
+  id integer [primary key]
+  cluster_id integer
+  key varchar
+  value varchar
+}
+
+Table templates {
+  id integer [primary key]
+  name varchar
+  data varchar
+}
+
+Ref: nodes.cluster_id > clusters.id
+Ref: nodes.template_id < templates.id
+
+Ref: variables.cluster_id > clusters.id

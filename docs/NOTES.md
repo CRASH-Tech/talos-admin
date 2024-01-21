@@ -1,0 +1,1 @@
+- load env vars as sctuct, that have default var or must be set flag, 
