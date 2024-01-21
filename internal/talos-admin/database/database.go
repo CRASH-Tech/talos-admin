@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	v1 "github.com/CRASH-Tech/talos-admin/internal/talos-admin/api/v1"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
@@ -32,4 +33,13 @@ func New(cfg config.СonfigImpl) DB {
 	result.db = bun.NewDB(sqldb, pgdialect.New())
 
 	return result
+}
+
+func (db *DB) Init() error {
+	_, err := db.db.NewCreateTable().Model((*v1.Cluster)(nil)).Exec(db.ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
