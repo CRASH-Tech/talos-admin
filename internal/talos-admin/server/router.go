@@ -1,17 +1,21 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
-	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/models"
+	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/controller"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func setRouter(cfg config.Сonfig) *gin.Engine {
 	router := gin.Default()
-
+	controller, err := controller.New(cfg)
+	if err != nil {
+		log.Panic(err)
+	}
 	// Enables automatic redirection if the current route can't be matched but a
 	// handler for the path with (without) the trailing slash exists.
 	router.RedirectTrailingSlash = true
@@ -31,14 +35,14 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 	// 	router.Static("/", "./web/talos-admin")
 	// }
 
-	rV1 := router.Group("/api/v1")
-	rV1.Use(customHeaders)
-	rV1.Use(authorization)
+	v1 := router.Group("/api/v1")
+	v1.Use(customHeaders)
+	v1.Use(authorization)
 	{
-		clusters := rV1.Group("/clusters")
+		clusters := v1.Group("/clusters")
 		{
-			clusters.GET(":id", models.ClusterGet)
-			clusters.GET("", models.ClusterGetAll)
+			clusters.GET("", controller.GetClusters)
+			clusters.GET(":id", controller.GetCluster)
 			// accounts.POST("", c.AddAccount)
 			// accounts.DELETE(":id", c.DeleteAccount)
 			// accounts.PATCH(":id", c.UpdateAccount)
@@ -46,7 +50,6 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 		}
 		//...
 	}
-	//////
 
 	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 

@@ -16,9 +16,8 @@ import (
 const InternalServerError = "Something went wrong!"
 
 func Start(cfg config.Сonfig) {
-	//jwtSetup(cfg)
 
-	//store.SetDBConnection(database.NewDBOptions(cfg))
+	//jwtSetup(cfg)
 
 	router := setRouter(cfg)
 

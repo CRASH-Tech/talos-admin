@@ -1,23 +1,16 @@
 package database
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
-	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/models"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-type DB struct {
-	db  *bun.DB
-	ctx context.Context
-}
-
-func New(cfg config.Сonfig) DB {
+func New(cfg config.Сonfig) *bun.DB {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.DB_USER,
 		cfg.DB_PASS,
@@ -28,18 +21,5 @@ func New(cfg config.Сonfig) DB {
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 
-	result := DB{}
-	result.ctx = context.TODO()
-	result.db = bun.NewDB(sqldb, pgdialect.New())
-
-	return result
-}
-
-func (db *DB) Init() error {
-	_, err := db.db.NewCreateTable().Model((*models.Cluster)(nil)).Exec(db.ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return bun.NewDB(sqldb, pgdialect.New())
 }
