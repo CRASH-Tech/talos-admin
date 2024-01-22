@@ -39,6 +39,8 @@ func (c *Controller) GetClusters(g *gin.Context) {
 	if err != nil {
 		g.Header("X-Total-Count", "0")
 		g.JSON(http.StatusInternalServerError, "")
+
+		return
 	}
 
 	g.Header("X-Total-Count", fmt.Sprintf("%d", len(clusters)))
@@ -52,6 +54,8 @@ func (c *Controller) GetCluster(g *gin.Context) {
 		log.Error(err)
 		g.Header("X-Total-Count", "0")
 		g.JSON(http.StatusBadRequest, "")
+
+		return
 	}
 
 	cluster, err := c.ds.GetCluster(int64(id))
@@ -59,6 +63,8 @@ func (c *Controller) GetCluster(g *gin.Context) {
 		log.Error(err)
 		g.Header("X-Total-Count", "0")
 		g.JSON(http.StatusNotFound, "")
+
+		return
 	}
 
 	g.Header("X-Total-Count", "1")
