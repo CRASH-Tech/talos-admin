@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/uptrace/bun"
@@ -13,10 +12,6 @@ type Cluster struct {
 	Name          string    `json:"name"`
 	CreatedOn     time.Time `json:"created_on"`
 }
-
-var (
-	ErrNotFound = fmt.Errorf("resource could not be found")
-)
 
 func (ds *DataStore) ClustersRead(limit, offset int, sort string) ([]Cluster, int, error) {
 	var clusters []Cluster
@@ -57,15 +52,26 @@ func (ds *DataStore) ClusterRead(id int64) (Cluster, error) {
 	return cluster, nil
 }
 
-func (ds *DataStore) ClusterCreate(c Cluster) error {
+func (ds *DataStore) ClusterCreate(c Cluster) (int64, error) {
 	c.CreatedOn = time.Now()
 
 	_, err := ds.db.NewInsert().Model(&c).Exec(ds.ctx)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil
+	var cluster Cluster
+
+	err = ds.db.NewSelect().
+		Model(&cluster).
+		Where("name = ?", c.Name).
+		Limit(1).
+		Scan(ds.ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	return cluster.ID, nil
 }
 
 func (ds *DataStore) ClusterDelete(id int64) error {

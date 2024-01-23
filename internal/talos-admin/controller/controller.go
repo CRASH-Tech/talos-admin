@@ -112,7 +112,7 @@ func (c *Controller) ClusterCreate(ctx *gin.Context) {
 		return
 	}
 
-	err = c.ds.ClusterCreate(cluster)
+	id, err := c.ds.ClusterCreate(cluster)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, "")
@@ -120,7 +120,7 @@ func (c *Controller) ClusterCreate(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "44")
+	ctx.JSON(http.StatusOK, fmt.Sprintf("%d", id))
 }
 
 func (c *Controller) ClusterDelete(ctx *gin.Context) {
