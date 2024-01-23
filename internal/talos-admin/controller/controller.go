@@ -142,3 +142,10 @@ func (c *Controller) ClusterDelete(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, "")
 }
+
+func (c *Controller) ClusterOptions(ctx *gin.Context) {
+	log.Info("OPTIONS")
+	ctx.Header("Allow", "GET,POST,OPTIONS,DELETE")
+
+	ctx.JSON(http.StatusOK, "")
+}

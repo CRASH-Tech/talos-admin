@@ -75,11 +75,7 @@ func (ds *DataStore) ClusterCreate(c Cluster) (int64, error) {
 }
 
 func (ds *DataStore) ClusterDelete(id int64) error {
-	//TODO: CHECK IT
-	//var cluster Cluster
-
-	//cluster.ID = id
-	_, err := ds.db.NewDelete().Model(Cluster{}).Where("id = ?", id).Exec(ds.ctx)
+	_, err := ds.db.NewDelete().Model(&Cluster{}).Where("id = ?", id).Exec(ds.ctx)
 	if err != nil {
 		return err
 	}

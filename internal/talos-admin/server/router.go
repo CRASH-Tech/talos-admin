@@ -57,7 +57,7 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 			clusters.GET("", controller.ClustersRead)
 			clusters.GET(":id", controller.ClusterRead)
 			clusters.POST("", controller.ClusterCreate)
-			clusters.OPTIONS("", controller.ClusterCreate)
+			clusters.OPTIONS(":id", controller.ClusterOptions)
 			clusters.DELETE(":id", controller.ClusterDelete)
 			// accounts.PATCH(":id", c.UpdateAccount)
 		}
