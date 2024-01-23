@@ -9,7 +9,7 @@ import (
 
 type Cluster struct {
 	bun.BaseModel `bun:"table:clusters"`
-	ID            int64     `json:"id" bun:",pk,autoincrement"`
+	ID            int64     `json:"id" bun:"id,pk,autoincrement"`
 	Name          string    `json:"name"`
 	CreatedOn     time.Time `json:"created_on"`
 }
@@ -18,22 +18,32 @@ var (
 	ErrNotFound = fmt.Errorf("resource could not be found")
 )
 
-func (ds *DataStore) GetClusters() ([]Cluster, error) {
+func (ds *DataStore) ClustersRead(limit, offset int, sort string) ([]Cluster, int, error) {
 	var clusters []Cluster
 
-	err := ds.db.NewSelect().
-		Model(&clusters).
-		OrderExpr("name ASC").
-		Limit(10).
-		Scan(ds.ctx)
-	if err != nil {
-		return clusters, err
+	q := ds.db.NewSelect().Model(&clusters)
+
+	if limit >= 0 {
+		q = q.Limit(limit)
 	}
 
-	return clusters, nil
+	if offset >= 0 {
+		q = q.Offset(offset)
+	}
+
+	if sort != "" {
+		q = q.OrderExpr(sort)
+	}
+
+	count, err := q.ScanAndCount(ds.ctx)
+	if err != nil {
+		return clusters, 0, err
+	}
+
+	return clusters, count, nil
 }
 
-func (ds *DataStore) GetCluster(id int64) (Cluster, error) {
+func (ds *DataStore) ClusterRead(id int64) (Cluster, error) {
 	var cluster Cluster
 
 	err := ds.db.NewSelect().
@@ -47,7 +57,7 @@ func (ds *DataStore) GetCluster(id int64) (Cluster, error) {
 	return cluster, nil
 }
 
-func (ds *DataStore) AddCluster(c Cluster) error {
+func (ds *DataStore) ClusterCreate(c Cluster) error {
 	c.CreatedOn = time.Now()
 
 	_, err := ds.db.NewInsert().Model(&c).Exec(ds.ctx)
@@ -58,8 +68,12 @@ func (ds *DataStore) AddCluster(c Cluster) error {
 	return nil
 }
 
-func (ds *DataStore) DeleteCluster(c Cluster) error {
-	_, err := ds.db.NewDelete().Model(&c).WherePK().Exec(ds.ctx)
+func (ds *DataStore) ClusterDelete(id int64) error {
+	//TODO: CHECK IT
+	//var cluster Cluster
+
+	//cluster.ID = id
+	_, err := ds.db.NewDelete().Model(Cluster{}).Where("id = ?", id).Exec(ds.ctx)
 	if err != nil {
 		return err
 	}
@@ -67,7 +81,7 @@ func (ds *DataStore) DeleteCluster(c Cluster) error {
 	return nil
 }
 
-func (ds *DataStore) UpdateCluster(c Cluster) error {
+func (ds *DataStore) ClusterUpdate(c Cluster) error {
 	_, err := ds.db.NewUpdate().Model(&c).WherePK().Exec(ds.ctx)
 	if err != nil {
 		return err

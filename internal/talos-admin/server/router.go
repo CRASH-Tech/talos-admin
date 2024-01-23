@@ -3,9 +3,11 @@ package server
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/config"
 	"github.com/CRASH-Tech/talos-admin/internal/talos-admin/controller"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
@@ -37,16 +39,27 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 
 	v1 := router.Group("/api/v1")
 	v1.Use(customHeaders)
+	v1.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "PATCH", "OPTIONS", "GET", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type", "X-Total-Count"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "*"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 	v1.Use(authorization)
 	{
 		clusters := v1.Group("/clusters")
 		{
-			clusters.GET("", controller.GetClusters)
-			clusters.GET(":id", controller.GetCluster)
-			// accounts.POST("", c.AddAccount)
-			// accounts.DELETE(":id", c.DeleteAccount)
+			clusters.GET("", controller.ClustersRead)
+			clusters.GET(":id", controller.ClusterRead)
+			clusters.POST("", controller.ClusterCreate)
+			clusters.OPTIONS("", controller.ClusterCreate)
+			clusters.DELETE(":id", controller.ClusterDelete)
 			// accounts.PATCH(":id", c.UpdateAccount)
-			// accounts.POST(":id/images", c.UploadAccountImage)
 		}
 		//...
 	}

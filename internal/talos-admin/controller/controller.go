@@ -24,49 +24,121 @@ func New(cfg config.Сonfig) (Controller, error) {
 	}
 
 	//TODO: MAKE IT
-	// err = ds.Init()
-	// if err != nil {
-	// 	return c, err
-	// }
+	err = ds.Init()
+	if err != nil {
+		return c, err
+	}
 
 	c.ds = ds
 
 	return c, nil
 }
 
-func (c *Controller) GetClusters(g *gin.Context) {
-	clusters, err := c.ds.GetClusters()
+func (c *Controller) ClustersRead(ctx *gin.Context) {
+	x := ctx.Request.URL.Query()
+	var limit int
+	var offset int
+
+	starStr := x.Get("_start")
+	endStr := x.Get("_end")
+	if starStr != "" && endStr != "" {
+		start, err := strconv.Atoi(starStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, "")
+
+			return
+		}
+		end, err := strconv.Atoi(endStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, "")
+
+			return
+		}
+
+		limit = end - start
+		offset = start
+	} else {
+		limit = -1
+		offset = -1
+	}
+
+	sort := x.Get("_sort")
+	order := x.Get("_order")
+	var sortOrder string
+	if sort != "" && order != "" {
+		sortOrder = fmt.Sprintf("%s %s", sort, order)
+	}
+
+	clusters, count, err := c.ds.ClustersRead(limit, offset, sortOrder)
 	if err != nil {
-		g.Header("X-Total-Count", "0")
-		g.JSON(http.StatusInternalServerError, "")
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, "")
 
 		return
 	}
 
-	g.Header("X-Total-Count", fmt.Sprintf("%d", len(clusters)))
-
-	g.JSON(http.StatusOK, clusters)
+	ctx.Header("X-Total-Count", strconv.Itoa(count))
+	ctx.JSON(http.StatusOK, clusters)
 }
 
-func (c *Controller) GetCluster(g *gin.Context) {
-	id, err := strconv.Atoi(g.Param("id"))
+func (c *Controller) ClusterRead(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		log.Error(err)
-		g.Header("X-Total-Count", "0")
-		g.JSON(http.StatusBadRequest, "")
+		ctx.JSON(http.StatusBadRequest, "")
 
 		return
 	}
 
-	cluster, err := c.ds.GetCluster(int64(id))
+	cluster, err := c.ds.ClusterRead(int64(id))
 	if err != nil {
 		log.Error(err)
-		g.Header("X-Total-Count", "0")
-		g.JSON(http.StatusNotFound, "")
+		ctx.JSON(http.StatusNotFound, "")
 
 		return
 	}
 
-	g.Header("X-Total-Count", "1")
-	g.JSON(http.StatusOK, cluster)
+	ctx.JSON(http.StatusOK, cluster)
+}
+
+func (c *Controller) ClusterCreate(ctx *gin.Context) {
+	var cluster models.Cluster
+
+	err := ctx.ShouldBindJSON(&cluster)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, "")
+
+		return
+	}
+
+	err = c.ds.ClusterCreate(cluster)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, "")
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "44")
+}
+
+func (c *Controller) ClusterDelete(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, "")
+
+		return
+	}
+
+	err = c.ds.ClusterDelete(int64(id))
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusNotFound, "")
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "")
 }

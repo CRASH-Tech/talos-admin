@@ -23,7 +23,7 @@ func NewDatastore(cfg config.Сonfig) (DataStore, error) {
 }
 
 func (ds *DataStore) Init() error {
-	_, err := ds.db.NewCreateTable().Model((*Cluster)(nil)).Exec(ds.ctx)
+	_, err := ds.db.NewCreateTable().IfNotExists().Model((*Cluster)(nil)).Exec(ds.ctx)
 	if err != nil {
 		return err
 	}
