@@ -18,6 +18,8 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	controller.FillDB()
 	// Enables automatic redirection if the current route can't be matched but a
 	// handler for the path with (without) the trailing slash exists.
 	router.RedirectTrailingSlash = true
@@ -38,7 +40,6 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 	// }
 
 	v1 := router.Group("/api/v1")
-	v1.Use(RequestLogger())
 	v1.Use(customHeaders)
 	v1.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},

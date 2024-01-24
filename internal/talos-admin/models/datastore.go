@@ -28,6 +28,21 @@ func (ds *DataStore) Init() error {
 		return err
 	}
 
+	_, err = ds.db.NewCreateTable().IfNotExists().Model((*Node)(nil)).Exec(ds.ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = ds.db.NewCreateTable().IfNotExists().Model((*Template)(nil)).Exec(ds.ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = ds.db.NewCreateTable().IfNotExists().Model((*Variable)(nil)).Exec(ds.ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
