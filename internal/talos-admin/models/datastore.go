@@ -30,3 +30,67 @@ func (ds *DataStore) Init() error {
 
 	return nil
 }
+
+func (ds *DataStore) ReadAll(target interface{}, result interface{}, limit, offset int, sort string) (int, error) {
+	q := ds.db.NewSelect().Model(target)
+
+	if limit >= 0 {
+		q = q.Limit(limit)
+	}
+
+	if offset >= 0 {
+		q = q.Offset(offset)
+	}
+
+	if sort != "" {
+		q = q.OrderExpr(sort)
+	}
+
+	count, err := q.ScanAndCount(ds.ctx, result)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (ds *DataStore) Read(id int64, target interface{}) error {
+	err := ds.db.NewSelect().
+		Model(target).
+		Where("id = ?", id).
+		Scan(ds.ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *DataStore) Create(target interface{}) (int64, error) {
+	var id int64
+	_, err := ds.db.NewInsert().Model(target).Returning("id").Exec(ds.ctx, &id)
+	if err != nil {
+		return id, err
+	}
+
+	return id, nil
+
+}
+
+func (ds *DataStore) Delete(id int64, target interface{}) error {
+	_, err := ds.db.NewDelete().Model(target).Where("id = ?", id).Exec(ds.ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *DataStore) Update(id int64, target interface{}) error {
+	_, err := ds.db.NewUpdate().Model(target).Where("id = ?", id).Exec(ds.ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

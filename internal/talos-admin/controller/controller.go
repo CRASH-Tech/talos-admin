@@ -69,7 +69,8 @@ func (c *Controller) ClustersRead(ctx *gin.Context) {
 		sortOrder = fmt.Sprintf("%s %s", sort, order)
 	}
 
-	clusters, count, err := c.ds.ClustersRead(limit, offset, sortOrder)
+	var clusters []models.Cluster
+	count, err := c.ds.ReadAll(&models.Cluster{}, &clusters, limit, offset, sortOrder)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, "")
@@ -82,7 +83,7 @@ func (c *Controller) ClustersRead(ctx *gin.Context) {
 }
 
 func (c *Controller) ClusterRead(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusBadRequest, "")
@@ -90,7 +91,8 @@ func (c *Controller) ClusterRead(ctx *gin.Context) {
 		return
 	}
 
-	cluster, err := c.ds.ClusterRead(int64(id))
+	var cluster models.Cluster
+	err = c.ds.Read(id, &cluster)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusNotFound, "")
@@ -112,7 +114,7 @@ func (c *Controller) ClusterCreate(ctx *gin.Context) {
 		return
 	}
 
-	id, err := c.ds.ClusterCreate(cluster)
+	id, err := c.ds.Create(&cluster)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, "")
@@ -120,23 +122,13 @@ func (c *Controller) ClusterCreate(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, fmt.Sprintf("%d", id))
+	ctx.JSON(http.StatusOK, id)
 }
 
 func (c *Controller) ClusterUpdate(ctx *gin.Context) {
 	var cluster models.Cluster
 
-	// id, err := strconv.Atoi(ctx.Param("id"))
-	// if err != nil {
-	// 	log.Error(err)
-	// 	ctx.JSON(http.StatusBadRequest, "")
-
-	// 	return
-	// }
-
-	// cluster.ID = int64(id)
-
-	err := ctx.ShouldBindJSON(&cluster)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusBadRequest, "")
@@ -144,21 +136,29 @@ func (c *Controller) ClusterUpdate(ctx *gin.Context) {
 		return
 	}
 
-	log.Info(cluster)
+	cluster.ID = id
 
-	// err = c.ds.ClusterUpdate(cluster)
-	// if err != nil {
-	// 	log.Error(err)
-	// 	ctx.JSON(http.StatusInternalServerError, "")
+	err = ctx.ShouldBindJSON(&cluster)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, "")
 
-	// 	return
-	// }
+		return
+	}
+
+	err = c.ds.Update(cluster.ID, &cluster)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, "")
+
+		return
+	}
 
 	ctx.JSON(http.StatusOK, cluster)
 }
 
 func (c *Controller) ClusterDelete(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusBadRequest, "")
@@ -166,7 +166,7 @@ func (c *Controller) ClusterDelete(ctx *gin.Context) {
 		return
 	}
 
-	err = c.ds.ClusterDelete(int64(id))
+	err = c.ds.Delete(id, &models.Cluster{})
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusNotFound, "")
@@ -178,8 +178,6 @@ func (c *Controller) ClusterDelete(ctx *gin.Context) {
 }
 
 func (c *Controller) ClusterOptions(ctx *gin.Context) {
-	log.Info("OPTIONS")
 	ctx.Header("Allow", "PUT,PATCH,OPTIONS,GET,DELETE")
-
 	ctx.JSON(http.StatusOK, "")
 }

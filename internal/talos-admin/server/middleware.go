@@ -5,6 +5,7 @@ import (
 )
 
 func customHeaders(ctx *gin.Context) {
+	ctx.Header("Content-Type", "application/json")
 	ctx.Header("Access-Control-Expose-Headers", "X-Total-Count")
 	ctx.Header("Access-Control-Allow-Origin", "*")
 }

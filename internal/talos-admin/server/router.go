@@ -38,6 +38,7 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 	// }
 
 	v1 := router.Group("/api/v1")
+	v1.Use(RequestLogger())
 	v1.Use(customHeaders)
 	v1.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
