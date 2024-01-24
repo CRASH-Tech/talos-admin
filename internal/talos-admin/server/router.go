@@ -19,7 +19,7 @@ func setRouter(cfg config.Сonfig) *gin.Engine {
 		log.Panic(err)
 	}
 
-	controller.FillDB()
+	//controller.FillDB()
 	// Enables automatic redirection if the current route can't be matched but a
 	// handler for the path with (without) the trailing slash exists.
 	router.RedirectTrailingSlash = true
