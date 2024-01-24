@@ -1,4 +1,4 @@
-import { Create, SimpleForm, TextInput, List, Datagrid, TextField, ReferenceField, EditButton, required } from "react-admin";
+import { Create, SimpleForm, TextInput, List, Datagrid, TextField, ReferenceField, Edit, EditButton, DateInput, ReferenceManyField, DateField, required } from "react-admin";
 
 export const ClusterList = () => (
     <List>
@@ -16,4 +16,13 @@ export const ClusterCreate = () => (
             <TextInput source="name" validate={[required()]} fullWidth />
         </SimpleForm>
     </Create>
+);
+
+export const ClusterEdit = () => (
+    <Edit>
+        <SimpleForm>
+            <TextInput disabled label="Id" source="id" />
+            <TextInput source="name" validate={required()} />
+        </SimpleForm>
+    </Edit>
 );

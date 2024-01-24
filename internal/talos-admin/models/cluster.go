@@ -83,11 +83,11 @@ func (ds *DataStore) ClusterDelete(id int64) error {
 	return nil
 }
 
-func (ds *DataStore) ClusterUpdate(c Cluster) error {
+func (ds *DataStore) ClusterUpdate(c Cluster) (Cluster, error) {
 	_, err := ds.db.NewUpdate().Model(&c).WherePK().Exec(ds.ctx)
 	if err != nil {
-		return err
+		return c, err
 	}
 
-	return nil
+	return c, err
 }

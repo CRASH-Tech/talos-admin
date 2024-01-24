@@ -123,6 +123,40 @@ func (c *Controller) ClusterCreate(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, fmt.Sprintf("%d", id))
 }
 
+func (c *Controller) ClusterUpdate(ctx *gin.Context) {
+	var cluster models.Cluster
+
+	// id, err := strconv.Atoi(ctx.Param("id"))
+	// if err != nil {
+	// 	log.Error(err)
+	// 	ctx.JSON(http.StatusBadRequest, "")
+
+	// 	return
+	// }
+
+	// cluster.ID = int64(id)
+
+	err := ctx.ShouldBindJSON(&cluster)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusBadRequest, "")
+
+		return
+	}
+
+	log.Info(cluster)
+
+	// err = c.ds.ClusterUpdate(cluster)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	ctx.JSON(http.StatusInternalServerError, "")
+
+	// 	return
+	// }
+
+	ctx.JSON(http.StatusOK, cluster)
+}
+
 func (c *Controller) ClusterDelete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -145,7 +179,7 @@ func (c *Controller) ClusterDelete(ctx *gin.Context) {
 
 func (c *Controller) ClusterOptions(ctx *gin.Context) {
 	log.Info("OPTIONS")
-	ctx.Header("Allow", "GET,POST,OPTIONS,DELETE")
+	ctx.Header("Allow", "PUT,PATCH,OPTIONS,GET,DELETE")
 
 	ctx.JSON(http.StatusOK, "")
 }
